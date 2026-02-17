@@ -1,6 +1,6 @@
-import { DetectedTable } from '../processing/tables.js';
+import { DetectedTable } from "../processing/tables.js";
 
-export type OutputFormat = 'json' | 'text';
+export type OutputFormat = "json" | "text";
 
 export interface LiteParseConfig {
   // OCR
@@ -34,8 +34,8 @@ export interface TextItem {
   y: number;
   width: number;
   height: number;
-  w: number;  // Alias for width
-  h: number;  // Alias for height
+  w: number; // Alias for width
+  h: number; // Alias for height
   fontName?: string;
   fontSize?: number;
   r?: number; // Rotation angle in degrees (0, 90, 180, 270)
@@ -70,7 +70,7 @@ export interface ProjectionTextBox {
   fromOCR?: boolean;
 
   // Projection metadata
-  snap?: 'left' | 'right' | 'center';
+  snap?: "left" | "right" | "center";
   leftAnchor?: string;
   rightAnchor?: string;
   centerAnchor?: string;

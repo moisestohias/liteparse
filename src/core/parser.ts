@@ -1,19 +1,16 @@
-import { LiteParseConfig, ParseResult, ScreenshotResult } from './types.js';
-import { mergeConfig } from './config.js';
-import { PdfEngine } from '../engines/pdf/interface.js';
-import { PdfJsEngine } from '../engines/pdf/pdfjs.js';
-import { PdfiumRenderer } from '../engines/pdf/pdfium-renderer.js';
-import { OcrEngine } from '../engines/ocr/interface.js';
-import { TesseractEngine } from '../engines/ocr/tesseract.js';
-import { HttpOcrEngine } from '../engines/ocr/http-simple.js';
-import { projectPagesToGrid } from '../processing/grid.js';
-import { buildBoundingBoxes } from '../processing/bbox.js';
-import { detectTables } from '../processing/tables.js';
-import { formatJSON } from '../output/json.js';
-import {
-  convertToPdf,
-  cleanupConversionFiles,
-} from '../conversion/convertToPdf.js';
+import { LiteParseConfig, ParseResult, ScreenshotResult } from "./types.js";
+import { mergeConfig } from "./config.js";
+import { PdfEngine } from "../engines/pdf/interface.js";
+import { PdfJsEngine } from "../engines/pdf/pdfjs.js";
+import { PdfiumRenderer } from "../engines/pdf/pdfium-renderer.js";
+import { OcrEngine } from "../engines/ocr/interface.js";
+import { TesseractEngine } from "../engines/ocr/tesseract.js";
+import { HttpOcrEngine } from "../engines/ocr/http-simple.js";
+import { projectPagesToGrid } from "../processing/grid.js";
+import { buildBoundingBoxes } from "../processing/bbox.js";
+import { detectTables } from "../processing/tables.js";
+import { formatJSON } from "../output/json.js";
+import { convertToPdf, cleanupConversionFiles } from "../conversion/convertToPdf.js";
 
 export class LiteParse {
   private config: LiteParseConfig;
@@ -25,7 +22,7 @@ export class LiteParse {
     this.config = mergeConfig(userConfig);
 
     // Initialize PDF engine
-    this.pdfEngine = new PdfJsEngine()
+    this.pdfEngine = new PdfJsEngine();
 
     // Initialize OCR engine
     // Auto-detect: use HTTP OCR if URL provided, otherwise use Tesseract
@@ -53,13 +50,13 @@ export class LiteParse {
     log(`Processing file: ${filePath}`);
     const conversionResult = await convertToPdf(filePath);
 
-    if ('code' in conversionResult) {
+    if ("code" in conversionResult) {
       // Conversion error
       throw new Error(`Conversion failed: ${conversionResult.message}`);
     }
 
     // Return early for text-based passthrough formats
-    if ('content' in conversionResult) {
+    if ("content" in conversionResult) {
       log(`File is a text-based format. Returning content directly.`);
       return {
         pages: [],
@@ -114,13 +111,13 @@ export class LiteParse {
     }
 
     // Build final text
-    const fullText = processedPages.map((p) => p.text).join('\n\n');
+    const fullText = processedPages.map((p) => p.text).join("\n\n");
 
     // Close PDF document
     await this.pdfEngine.close(doc);
 
     // Cleanup OCR engine if it's Tesseract (to free memory)
-    if (this.ocrEngine && 'terminate' in this.ocrEngine) {
+    if (this.ocrEngine && "terminate" in this.ocrEngine) {
       await (this.ocrEngine as TesseractEngine).terminate();
     }
 
@@ -136,10 +133,10 @@ export class LiteParse {
 
     // Format based on output format
     switch (this.config.outputFormat) {
-      case 'json':
+      case "json":
         result.json = JSON.parse(formatJSON(result));
         break;
-      case 'text':
+      case "text":
         // Already in text format
         break;
     }
@@ -179,11 +176,7 @@ export class LiteParse {
         }
 
         log(`Rendering page ${pageNum}...`);
-        const imageBuffer = await renderer.renderPageToBuffer(
-          filePath,
-          pageNum,
-          this.config.dpi
-        );
+        const imageBuffer = await renderer.renderPageToBuffer(filePath, pageNum, this.config.dpi);
 
         // Get page dimensions
         const pageData = await this.pdfEngine.extractPage(doc, pageNum);
@@ -208,14 +201,10 @@ export class LiteParse {
   /**
    * Run OCR on pages that need it
    */
-  private async runOCR(
-    doc: any,
-    pages: any[],
-    log: (msg: string) => void
-  ): Promise<void> {
+  private async runOCR(doc: any, pages: any[], log: (msg: string) => void): Promise<void> {
     if (!this.ocrEngine) return;
 
-    log('Running OCR on pages...');
+    log("Running OCR on pages...");
 
     for (let i = 0; i < pages.length; i++) {
       const page = pages[i];
@@ -237,14 +226,11 @@ export class LiteParse {
           );
 
           // Save temporary image file
-          const fs = await import('fs/promises');
-          const path = await import('path');
-          const os = await import('os');
+          const fs = await import("fs/promises");
+          const path = await import("path");
+          const os = await import("os");
           const tmpDir = os.tmpdir();
-          const tmpImagePath = path.join(
-            tmpDir,
-            `page_${page.pageNum}_ocr.png`
-          );
+          const tmpImagePath = path.join(tmpDir, `page_${page.pageNum}_ocr.png`);
           await fs.writeFile(tmpImagePath, imageBuffer);
 
           // Run OCR
@@ -264,16 +250,14 @@ export class LiteParse {
                 y: r.bbox[1],
                 width: r.bbox[2] - r.bbox[0],
                 height: r.bbox[3] - r.bbox[1],
-                fontName: 'OCR',
+                fontName: "OCR",
                 fontSize: r.bbox[3] - r.bbox[1],
                 fromOcr: true,
               }));
 
             // Add OCR text items directly to page textItems
             page.textItems.push(...ocrTextItems);
-            log(
-              `  Found ${ocrTextItems.length} text items from OCR on page ${page.pageNum}`
-            );
+            log(`  Found ${ocrTextItems.length} text items from OCR on page ${page.pageNum}`);
           }
 
           // Clean up temp file

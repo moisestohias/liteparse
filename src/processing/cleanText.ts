@@ -1,4 +1,4 @@
-import { ParsedPage, LiteParseConfig } from '../core/types.js';
+import { ParsedPage, LiteParseConfig } from "../core/types.js";
 
 /**
  * Detect and remove margins from a single page.
@@ -9,7 +9,7 @@ import { ParsedPage, LiteParseConfig } from '../core/types.js';
  * - Right margin (trailing whitespace on each line)
  */
 function detectAndRemoveMarginOnPage(page: ParsedPage): void {
-  const lines = page.text.split('\n');
+  const lines = page.text.split("\n");
 
   let minX: number | undefined = undefined;
   let minY: number | undefined = undefined;
@@ -39,7 +39,7 @@ function detectAndRemoveMarginOnPage(page: ParsedPage): void {
 
   // If page is entirely empty, just return
   if (minX === undefined || minY === undefined || maxY === undefined) {
-    page.text = '';
+    page.text = "";
     return;
   }
 
@@ -60,7 +60,7 @@ function detectAndRemoveMarginOnPage(page: ParsedPage): void {
     newLines.push(line.slice(minX));
   }
 
-  page.text = newLines.join('\n');
+  page.text = newLines.join("\n");
 }
 
 /**
@@ -76,15 +76,12 @@ function detectAndRemoveMargin(pages: ParsedPage[]): void {
 /**
  * Clean raw text output - removes margins, null characters
  */
-export function cleanRawText(
-  pages: ParsedPage[],
-  _config: LiteParseConfig
-): void {
+export function cleanRawText(pages: ParsedPage[], _config: LiteParseConfig): void {
   // Remove margins (per-page)
   detectAndRemoveMargin(pages);
 
   // Remove null characters
   for (const page of pages) {
-    page.text = page.text.replace(/\u0000/g, ' ');
+    page.text = page.text.replace(/\u0000/g, " ");
   }
 }

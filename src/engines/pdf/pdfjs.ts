@@ -1,22 +1,15 @@
-import fs from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import {
-  PdfEngine,
-  PdfDocument,
-  PageData,
-  Path,
-  Image,
-  Annotation,
-} from './interface.js';
-import { TextItem } from '../../core/types.js';
-import { PdfiumRenderer } from './pdfium-renderer.js';
+import fs from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { PdfEngine, PdfDocument, PageData, Path, Image, Annotation } from "./interface.js";
+import { TextItem } from "../../core/types.js";
+import { PdfiumRenderer } from "./pdfium-renderer.js";
 
 // Dynamic import of PDF.js
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 // From dist/src/engines/pdf/ we need to go up to dist/src/vendor/pdfjs
-const PDFJS_DIR = join(__dirname, '../../vendor/pdfjs');
+const PDFJS_DIR = join(__dirname, "../../vendor/pdfjs");
 
 // Import PDF.js dynamically
 await import(`${PDFJS_DIR}/pdf.mjs`);
@@ -45,17 +38,20 @@ function multiplyMatrices(m1: number[], m2: number[]): number[] {
     m1[0] * m2[2] + m1[2] * m2[3],
     m1[1] * m2[2] + m1[3] * m2[3],
     m1[0] * m2[4] + m1[2] * m2[5] + m1[4],
-    m1[1] * m2[4] + m1[3] * m2[5] + m1[5]
+    m1[1] * m2[4] + m1[3] * m2[5] + m1[5],
   ];
 }
 
 /**
  * Apply transformation matrix to a point
  */
-function applyTransformation(point: { x: number; y: number }, transform: number[]): { x: number; y: number } {
+function applyTransformation(
+  point: { x: number; y: number },
+  transform: number[]
+): { x: number; y: number } {
   return {
     x: point.x * transform[0] + point.y * transform[2] + transform[4],
-    y: point.x * transform[1] + point.y * transform[3] + transform[5]
+    y: point.x * transform[1] + point.y * transform[3] + transform[5],
   };
 }
 
@@ -85,11 +81,11 @@ function singularValueDecompose2dScale(m: number[]): { x: number; y: number } {
 
 // Pre-compiled regex patterns for string decoding (avoid recompilation per item)
 const BUGGY_FONT_MARKER_REGEX = /:->|>_(\d+)_\d+_<|<-:/g;
-const BUGGY_FONT_MARKER_CHECK = ':->|>';
+const BUGGY_FONT_MARKER_CHECK = ":->|>";
 const PIPE_PATTERN_REGEX = /\s*\|([^|])\|\s*/g;
 
 export class PdfJsEngine implements PdfEngine {
-  name = 'pdfjs';
+  name = "pdfjs";
   private pdfiumRenderer: PdfiumRenderer | null = null;
   private currentPdfPath: string | null = null;
 
@@ -146,10 +142,7 @@ export class PdfJsEngine implements PdfEngine {
       const scale = singularValueDecompose2dScale(item.transform);
 
       // Get upper-right corner
-      const ur = applyTransformation(
-        { x: item.width / scale.x, y: item.height / scale.y },
-        cm
-      );
+      const ur = applyTransformation({ x: item.width / scale.x, y: item.height / scale.y }, cm);
 
       // Calculate final bounding box in viewport space
       const left = Math.min(ll.x, ur.x);
@@ -175,19 +168,18 @@ export class PdfJsEngine implements PdfEngine {
       let decodedStr = item.str;
       if (decodedStr.includes(BUGGY_FONT_MARKER_CHECK)) {
         BUGGY_FONT_MARKER_REGEX.lastIndex = 0; // Reset regex state
-        decodedStr = decodedStr.replace(
-          BUGGY_FONT_MARKER_REGEX,
-          (_: string, charCode: string) => String.fromCharCode(parseInt(charCode))
+        decodedStr = decodedStr.replace(BUGGY_FONT_MARKER_REGEX, (_: string, charCode: string) =>
+          String.fromCharCode(parseInt(charCode))
         );
       }
 
       // Handle pipe-separated characters: " |a|  |r|  |X| " -> "arX"
       // Some PDFs encode text with characters separated by pipes and spaces
-      if (decodedStr.includes('|')) {
+      if (decodedStr.includes("|")) {
         PIPE_PATTERN_REGEX.lastIndex = 0; // Reset regex state
         const matches = [...decodedStr.matchAll(PIPE_PATTERN_REGEX)];
         if (matches.length > 0) {
-          decodedStr = matches.map(m => m[1]).join('');
+          decodedStr = matches.map((m) => m[1]).join("");
         }
       }
 
@@ -233,10 +225,7 @@ export class PdfJsEngine implements PdfEngine {
     maxPages?: number,
     targetPages?: string
   ): Promise<PageData[]> {
-    const numPages = Math.min(
-      doc.numPages,
-      maxPages || doc.numPages
-    );
+    const numPages = Math.min(doc.numPages, maxPages || doc.numPages);
 
     const pages: PageData[] = [];
 
@@ -259,25 +248,17 @@ export class PdfJsEngine implements PdfEngine {
     return pages;
   }
 
-  async renderPageImage(
-    _doc: PdfDocument,
-    pageNum: number,
-    dpi: number
-  ): Promise<Buffer> {
+  async renderPageImage(_doc: PdfDocument, pageNum: number, dpi: number): Promise<Buffer> {
     // Use PDFium for rendering (more robust with inline images)
     if (!this.currentPdfPath) {
-      throw new Error('PDF path not available for rendering');
+      throw new Error("PDF path not available for rendering");
     }
 
     if (!this.pdfiumRenderer) {
       this.pdfiumRenderer = new PdfiumRenderer();
     }
 
-    return await this.pdfiumRenderer.renderPageToBuffer(
-      this.currentPdfPath,
-      pageNum,
-      dpi
-    );
+    return await this.pdfiumRenderer.renderPageToBuffer(this.currentPdfPath, pageNum, dpi);
   }
 
   async close(doc: PdfDocument): Promise<void> {
@@ -296,13 +277,13 @@ export class PdfJsEngine implements PdfEngine {
 
   private parseTargetPages(targetPages: string, maxPages: number): number[] {
     const pages: number[] = [];
-    const parts = targetPages.split(',');
+    const parts = targetPages.split(",");
 
     for (const part of parts) {
       const trimmed = part.trim();
-      if (trimmed.includes('-')) {
+      if (trimmed.includes("-")) {
         // Range: "1-5"
-        const [start, end] = trimmed.split('-').map((n) => parseInt(n.trim()));
+        const [start, end] = trimmed.split("-").map((n) => parseInt(n.trim()));
         for (let i = start; i <= Math.min(end, maxPages); i++) {
           if (i >= 1) {
             pages.push(i);

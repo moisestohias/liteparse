@@ -1,9 +1,9 @@
-import { LiteParseConfig } from './types.js';
+import { LiteParseConfig } from "./types.js";
 
 export const DEFAULT_CONFIG: LiteParseConfig = {
   // OCR - defaults to in-process Tesseract for zero-setup experience
   // If ocrServerUrl is provided, uses HTTP OCR instead
-  ocrLanguage: 'en',
+  ocrLanguage: "en",
   ocrEnabled: true,
   ocrServerUrl: undefined, // If set, uses HTTP OCR; otherwise uses Tesseract
 
@@ -13,7 +13,7 @@ export const DEFAULT_CONFIG: LiteParseConfig = {
   dpi: 150,
 
   // Output
-  outputFormat: 'json',
+  outputFormat: "json",
   includeImages: true,
   includeCharts: true,
 
@@ -25,9 +25,7 @@ export const DEFAULT_CONFIG: LiteParseConfig = {
   preserveLayoutAlignmentAcrossPages: false,
 };
 
-export function mergeConfig(
-  userConfig: Partial<LiteParseConfig>
-): LiteParseConfig {
+export function mergeConfig(userConfig: Partial<LiteParseConfig>): LiteParseConfig {
   return {
     ...DEFAULT_CONFIG,
     ...userConfig,

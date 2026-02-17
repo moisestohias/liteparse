@@ -1,7 +1,7 @@
-import { promises as fs } from 'fs';
-import { spawn } from 'child_process';
-import path from 'path';
-import os from 'os';
+import { promises as fs } from "fs";
+import { spawn } from "child_process";
+import path from "path";
+import os from "os";
 
 export interface ConversionResult {
   pdfPath: string;
@@ -14,57 +14,57 @@ export interface ConversionError {
 }
 
 export interface ConversionPassthrough {
-  content: string
+  content: string;
 }
 
 // File extension categories
 export const officeExtensions = [
-  '.doc',
-  '.docx',
-  '.docm',
-  '.dot',
-  '.dotm',
-  '.dotx',
-  '.odt',
-  '.ott',
-  '.ppt',
-  '.pptx',
-  '.pptm',
-  '.pot',
-  '.potm',
-  '.potx',
-  '.odp',
-  '.otp',
-  '.rtf',
-  '.pages',
-  '.key',
+  ".doc",
+  ".docx",
+  ".docm",
+  ".dot",
+  ".dotm",
+  ".dotx",
+  ".odt",
+  ".ott",
+  ".ppt",
+  ".pptx",
+  ".pptm",
+  ".pot",
+  ".potm",
+  ".potx",
+  ".odp",
+  ".otp",
+  ".rtf",
+  ".pages",
+  ".key",
 ];
 
 export const spreadsheetExtensions = [
-  '.xls',
-  '.xlsx',
-  '.xlsm',
-  '.xlsb',
-  '.ods',
-  '.ots',
-  '.csv',
-  '.tsv',
-  '.numbers',
+  ".xls",
+  ".xlsx",
+  ".xlsm",
+  ".xlsb",
+  ".ods",
+  ".ots",
+  ".csv",
+  ".tsv",
+  ".numbers",
 ];
 
 export const imageExtensions = [
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.gif',
-  '.bmp',
-  '.tiff',
-  '.tif',
-  '.webp',
-  '.svg',
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".bmp",
+  ".tiff",
+  ".tif",
+  ".webp",
+  ".svg",
 ];
 
-export const htmlExtensions = ['.htm', '.html', '.xhtml'];
+export const htmlExtensions = [".htm", ".html", ".xhtml"];
 
 /**
  * Guess file extension from file content
@@ -77,60 +77,51 @@ export async function guessFileExtension(filePath: string): Promise<string> {
 
   // Read first few bytes to detect file type
   const buffer = Buffer.alloc(16);
-  const fd = await fs.open(filePath, 'r');
+  const fd = await fs.open(filePath, "r");
   await fd.read(buffer, 0, 16, 0);
   await fd.close();
 
   // PDF: %PDF
-  if (buffer.toString('utf-8', 0, 4) === '%PDF') {
-    return '.pdf';
+  if (buffer.toString("utf-8", 0, 4) === "%PDF") {
+    return ".pdf";
   }
 
   // PNG: 89 50 4E 47
-  if (
-    buffer[0] === 0x89 &&
-    buffer[1] === 0x50 &&
-    buffer[2] === 0x4e &&
-    buffer[3] === 0x47
-  ) {
-    return '.png';
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    return ".png";
   }
 
   // JPEG: FF D8 FF
   if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-    return '.jpg';
+    return ".jpg";
   }
 
   // ZIP-based formats (docx, xlsx, etc): PK
   if (buffer[0] === 0x50 && buffer[1] === 0x4b) {
     // Could be docx, xlsx, pptx, odt, etc.
-    return '.docx'; // Default to docx for now
+    return ".docx"; // Default to docx for now
   }
 
-  return ext || '.pdf';
+  return ext || ".pdf";
 }
 
 /**
  * Execute command with timeout
  */
-async function executeCommand(
-  command: string,
-  args: string[],
-  timeoutMs = 60000
-): Promise<string> {
+async function executeCommand(command: string, args: string[], timeoutMs = 60000): Promise<string> {
   return new Promise((resolve, reject) => {
     const proc = spawn(command, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ["ignore", "pipe", "pipe"],
     });
 
-    let stdout = '';
-    let stderr = '';
+    let stdout = "";
+    let stderr = "";
 
-    proc.stdout?.on('data', (data) => {
+    proc.stdout?.on("data", (data) => {
       stdout += data.toString();
     });
 
-    proc.stderr?.on('data', (data) => {
+    proc.stderr?.on("data", (data) => {
       stderr += data.toString();
     });
 
@@ -139,7 +130,7 @@ async function executeCommand(
       reject(new Error(`Command timeout after ${timeoutMs}ms`));
     }, timeoutMs);
 
-    proc.on('close', (code) => {
+    proc.on("close", (code) => {
       clearTimeout(timeout);
       if (code === 0) {
         resolve(stdout);
@@ -148,7 +139,7 @@ async function executeCommand(
       }
     });
 
-    proc.on('error', (err) => {
+    proc.on("error", (err) => {
       clearTimeout(timeout);
       reject(err);
     });
@@ -160,7 +151,7 @@ async function executeCommand(
  */
 async function isCommandAvailable(command: string): Promise<boolean> {
   try {
-    await executeCommand('which', [command], 5000);
+    await executeCommand("which", [command], 5000);
     return true;
   } catch {
     return false;
@@ -170,28 +161,17 @@ async function isCommandAvailable(command: string): Promise<boolean> {
 /**
  * Convert office documents using LibreOffice
  */
-async function convertOfficeDocument(
-  filePath: string,
-  outputDir: string
-): Promise<string> {
-  const hasLibreOffice = await isCommandAvailable('libreoffice');
+async function convertOfficeDocument(filePath: string, outputDir: string): Promise<string> {
+  const hasLibreOffice = await isCommandAvailable("libreoffice");
   if (!hasLibreOffice) {
     throw new Error(
-      'LibreOffice is not installed. Please install LibreOffice to convert office documents. On macOS: brew install --cask libreoffice, On Ubuntu: apt-get install libreoffice'
+      "LibreOffice is not installed. Please install LibreOffice to convert office documents. On macOS: brew install --cask libreoffice, On Ubuntu: apt-get install libreoffice"
     );
   }
 
   await executeCommand(
-    'libreoffice',
-    [
-      '--headless',
-      '--invisible',
-      '--convert-to',
-      'pdf',
-      '--outdir',
-      outputDir,
-      filePath,
-    ],
+    "libreoffice",
+    ["--headless", "--invisible", "--convert-to", "pdf", "--outdir", outputDir, filePath],
     120000 // 2 minutes timeout
   );
 
@@ -204,21 +184,18 @@ async function convertOfficeDocument(
     await fs.access(pdfPath);
     return pdfPath;
   } catch {
-    throw new Error('LibreOffice conversion succeeded but output PDF not found');
+    throw new Error("LibreOffice conversion succeeded but output PDF not found");
   }
 }
 
 /**
  * Convert images to PDF using ImageMagick
  */
-async function convertImageToPdf(
-  filePath: string,
-  outputDir: string
-): Promise<string> {
-  const hasConvert = await isCommandAvailable('convert');
+async function convertImageToPdf(filePath: string, outputDir: string): Promise<string> {
+  const hasConvert = await isCommandAvailable("convert");
   if (!hasConvert) {
     throw new Error(
-      'ImageMagick is not installed. Please install ImageMagick to convert images. On macOS: brew install imagemagick, On Ubuntu: apt-get install imagemagick'
+      "ImageMagick is not installed. Please install ImageMagick to convert images. On macOS: brew install imagemagick, On Ubuntu: apt-get install imagemagick"
     );
   }
 
@@ -226,15 +203,8 @@ async function convertImageToPdf(
   const pdfPath = path.join(outputDir, `${baseName}.pdf`);
 
   await executeCommand(
-    'convert',
-    [
-      filePath,
-      '-density',
-      '150',
-      '-units',
-      'PixelsPerInch',
-      pdfPath,
-    ],
+    "convert",
+    [filePath, "-density", "150", "-units", "PixelsPerInch", pdfPath],
     60000
   );
 
@@ -254,7 +224,7 @@ export async function convertToPdf(
     } catch {
       return {
         message: `File not found: ${filePath}`,
-        code: 'FILE_NOT_FOUND',
+        code: "FILE_NOT_FOUND",
       };
     }
 
@@ -262,7 +232,7 @@ export async function convertToPdf(
     const extension = await guessFileExtension(filePath);
 
     // If already PDF, return as-is
-    if (extension === '.pdf') {
+    if (extension === ".pdf") {
       return {
         pdfPath: filePath,
         originalExtension: extension,
@@ -270,7 +240,7 @@ export async function convertToPdf(
     }
 
     // Create temp directory for output
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'liteparse-'));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "liteparse-"));
 
     // Convert based on file type
     let pdfPath: string;
@@ -284,11 +254,10 @@ export async function convertToPdf(
     } else if (imageExtensions.includes(extension)) {
       console.error(`Converting image: ${path.basename(filePath)}`);
       pdfPath = await convertImageToPdf(filePath, tmpDir);
-    } 
-    else {
+    } else {
       // Unsupported format
       // Assume its a text-based format and pass through text directly
-      const content = await fs.readFile(filePath, 'utf-8');
+      const content = await fs.readFile(filePath, "utf-8");
       return {
         content,
       };
@@ -301,7 +270,7 @@ export async function convertToPdf(
   } catch (error) {
     return {
       message: error instanceof Error ? error.message : String(error),
-      code: 'CONVERSION_ERROR',
+      code: "CONVERSION_ERROR",
     };
   }
 }

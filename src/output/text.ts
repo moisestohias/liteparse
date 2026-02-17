@@ -1,4 +1,4 @@
-import { ParseResult, ParsedPage } from '../core/types.js';
+import { ParseResult, ParsedPage } from "../core/types.js";
 
 /**
  * Format pages as plain text
@@ -9,7 +9,7 @@ export function formatText(result: ParseResult): string {
     return header + page.text;
   });
 
-  return pageTexts.join('\n\n');
+  return pageTexts.join("\n\n");
 }
 
 /**

@@ -1,6 +1,6 @@
-import { PDFiumLibrary, type PDFiumPageRenderOptions } from '@hyzyla/pdfium';
-import sharp from 'sharp';
-import { promises as fs } from 'fs';
+import { PDFiumLibrary, type PDFiumPageRenderOptions } from "@hyzyla/pdfium";
+import sharp from "sharp";
+import { promises as fs } from "fs";
 
 /**
  * PDFium-based PDF screenshot renderer
@@ -23,7 +23,7 @@ export class PdfiumRenderer {
     await this.init();
 
     if (!this.pdfium) {
-      throw new Error('PDFium not initialized');
+      throw new Error("PDFium not initialized");
     }
 
     // Read PDF file

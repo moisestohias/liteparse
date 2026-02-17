@@ -1,13 +1,12 @@
-import { createWorker, Worker } from 'tesseract.js';
-import { OcrEngine, OcrOptions, OcrResult } from './interface.js';
-
+import { createWorker, Worker } from "tesseract.js";
+import { OcrEngine, OcrOptions, OcrResult } from "./interface.js";
 
 export class TesseractEngine implements OcrEngine {
-  name = 'tesseract';
+  name = "tesseract";
   private worker?: Worker;
   private currentLanguage?: string;
 
-  async initialize(language: string = 'eng'): Promise<void> {
+  async initialize(language: string = "eng"): Promise<void> {
     if (this.worker && this.currentLanguage === language) {
       return; // Already initialized for this language
     }
@@ -21,10 +20,7 @@ export class TesseractEngine implements OcrEngine {
     this.currentLanguage = language;
   }
 
-  async recognize(
-    imagePath: string,
-    options: OcrOptions
-  ): Promise<OcrResult[]> {
+  async recognize(imagePath: string, options: OcrOptions): Promise<OcrResult[]> {
     // Handle language - tesseract.js uses language codes like 'eng', 'fra', 'deu'
     const language = this.normalizeLanguage(
       Array.isArray(options.language) ? options.language[0] : options.language
@@ -34,7 +30,7 @@ export class TesseractEngine implements OcrEngine {
     await this.initialize(language);
 
     if (!this.worker) {
-      throw new Error('Tesseract worker not initialized');
+      throw new Error("Tesseract worker not initialized");
     }
 
     try {
@@ -46,12 +42,12 @@ export class TesseractEngine implements OcrEngine {
       // Convert to our OcrResult format
       const results: OcrResult[] = words.map((word) => ({
         text: word.text,
-        bbox: [
-          word.bbox.x0,
-          word.bbox.y0,
-          word.bbox.x1,
-          word.bbox.y1,
-        ] as [number, number, number, number],
+        bbox: [word.bbox.x0, word.bbox.y0, word.bbox.x1, word.bbox.y1] as [
+          number,
+          number,
+          number,
+          number,
+        ],
         confidence: word.confidence / 100, // Tesseract returns 0-100, we want 0-1
       }));
 
@@ -63,10 +59,7 @@ export class TesseractEngine implements OcrEngine {
     }
   }
 
-  async recognizeBatch(
-    imagePaths: string[],
-    options: OcrOptions
-  ): Promise<OcrResult[][]> {
+  async recognizeBatch(imagePaths: string[], options: OcrOptions): Promise<OcrResult[][]> {
     const results: OcrResult[][] = [];
 
     for (let i = 0; i < imagePaths.length; i++) {
@@ -92,22 +85,22 @@ export class TesseractEngine implements OcrEngine {
    */
   private normalizeLanguage(lang: string): string {
     const languageMap: Record<string, string> = {
-      en: 'eng',
-      fr: 'fra',
-      de: 'deu',
-      es: 'spa',
-      it: 'ita',
-      pt: 'por',
-      ru: 'rus',
-      zh: 'chi_sim',
-      'zh-cn': 'chi_sim',
-      'zh-tw': 'chi_tra',
-      ja: 'jpn',
-      ko: 'kor',
-      ar: 'ara',
-      hi: 'hin',
-      th: 'tha',
-      vi: 'vie',
+      en: "eng",
+      fr: "fra",
+      de: "deu",
+      es: "spa",
+      it: "ita",
+      pt: "por",
+      ru: "rus",
+      zh: "chi_sim",
+      "zh-cn": "chi_sim",
+      "zh-tw": "chi_tra",
+      ja: "jpn",
+      ko: "kor",
+      ar: "ara",
+      hi: "hin",
+      th: "tha",
+      vi: "vie",
     };
 
     const normalized = lang.toLowerCase().trim();

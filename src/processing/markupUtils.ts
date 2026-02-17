@@ -1,4 +1,4 @@
-import { MarkupData } from '../core/types.js';
+import { MarkupData } from "../core/types.js";
 
 /**
  * Apply markup tags to text based on markup data

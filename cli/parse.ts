@@ -1,35 +1,35 @@
-import { Command } from 'commander';
-import fs from 'fs/promises';
-import { existsSync, readdirSync, statSync } from 'fs';
-import path from 'path';
-import { LiteParse } from '../src/core/parser.js';
-import { LiteParseConfig, OutputFormat } from '../src/core/types.js';
-import { performance } from 'perf_hooks';
+import { Command } from "commander";
+import fs from "fs/promises";
+import { existsSync, readdirSync, statSync } from "fs";
+import path from "path";
+import { LiteParse } from "../src/core/parser.js";
+import { LiteParseConfig, OutputFormat } from "../src/core/types.js";
+import { performance } from "perf_hooks";
 
 const program = new Command();
 
 program
-  .name('liteparse')
-  .description('OSS document parsing tool (supports PDF, DOCX, XLSX, images, and more)')
-  .version('1.0.0');
+  .name("liteparse")
+  .description("OSS document parsing tool (supports PDF, DOCX, XLSX, images, and more)")
+  .version("1.0.0");
 
 program
-  .command('parse <file>')
-  .description('Parse a document file (PDF, DOCX, XLSX, PPTX, images, etc.)')
-  .option('-o, --output <file>', 'Output file path')
-  .option('--format <format>', 'Output format: json|text', 'text')
-  .option('--ocr-server-url <url>', 'HTTP OCR server URL (uses Tesseract if not provided)')
-  .option('--no-ocr', 'Disable OCR')
-  .option('--ocr-language <lang>', 'OCR language(s)', 'en')
-  .option('--max-pages <n>', 'Max pages to parse', '1000')
-  .option('--target-pages <pages>', 'Target pages (e.g., "1-5,10,15-20")')
-  .option('--dpi <dpi>', 'DPI for rendering', '150')
-  .option('--no-tables', 'Disable table detection')
-  .option('--no-precise-bbox', 'Disable precise bounding boxes')
-  .option('--skip-diagonal-text', 'Skip diagonal text')
-  .option('--preserve-small-text', 'Preserve very small text')
-  .option('--config <file>', 'Config file (JSON)')
-  .option('-q, --quiet', 'Suppress progress output')
+  .command("parse <file>")
+  .description("Parse a document file (PDF, DOCX, XLSX, PPTX, images, etc.)")
+  .option("-o, --output <file>", "Output file path")
+  .option("--format <format>", "Output format: json|text", "text")
+  .option("--ocr-server-url <url>", "HTTP OCR server URL (uses Tesseract if not provided)")
+  .option("--no-ocr", "Disable OCR")
+  .option("--ocr-language <lang>", "OCR language(s)", "en")
+  .option("--max-pages <n>", "Max pages to parse", "1000")
+  .option("--target-pages <pages>", 'Target pages (e.g., "1-5,10,15-20")')
+  .option("--dpi <dpi>", "DPI for rendering", "150")
+  .option("--no-tables", "Disable table detection")
+  .option("--no-precise-bbox", "Disable precise bounding boxes")
+  .option("--skip-diagonal-text", "Skip diagonal text")
+  .option("--preserve-small-text", "Preserve very small text")
+  .option("--config <file>", "Config file (JSON)")
+  .option("-q, --quiet", "Suppress progress output")
   .action(async (file: string, options: any) => {
     try {
       const quiet = options.quiet || false;
@@ -48,7 +48,7 @@ program
           console.error(`Error: Config file not found: ${options.config}`);
           process.exit(1);
         }
-        const configData = await fs.readFile(options.config, 'utf-8');
+        const configData = await fs.readFile(options.config, "utf-8");
         config = JSON.parse(configData);
       }
 
@@ -77,10 +77,10 @@ program
       // Format output based on format
       let output: string;
       switch (config.outputFormat) {
-        case 'json':
+        case "json":
           output = JSON.stringify(result.json, null, 2);
           break;
-        case 'text':
+        case "text":
         default:
           output = result.text;
           break;
@@ -106,14 +106,14 @@ program
   });
 
 program
-  .command('screenshot <file>')
-  .description('Generate screenshots of PDF pages')
-  .option('-o, --output-dir <dir>', 'Output directory for screenshots', './screenshots')
-  .option('--pages <pages>', 'Page numbers to screenshot (e.g., "1,3,5" or "1-5")')
-  .option('--dpi <dpi>', 'DPI for rendering', '150')
-  .option('--format <format>', 'Image format: png|jpg', 'png')
-  .option('--config <file>', 'Config file (JSON)')
-  .option('-q, --quiet', 'Suppress progress output')
+  .command("screenshot <file>")
+  .description("Generate screenshots of PDF pages")
+  .option("-o, --output-dir <dir>", "Output directory for screenshots", "./screenshots")
+  .option("--pages <pages>", 'Page numbers to screenshot (e.g., "1,3,5" or "1-5")')
+  .option("--dpi <dpi>", "DPI for rendering", "150")
+  .option("--format <format>", "Image format: png|jpg", "png")
+  .option("--config <file>", "Config file (JSON)")
+  .option("-q, --quiet", "Suppress progress output")
   .action(async (file: string, options: any) => {
     try {
       const quiet = options.quiet || false;
@@ -132,7 +132,7 @@ program
           console.error(`Error: Config file not found: ${options.config}`);
           process.exit(1);
         }
-        const configData = await fs.readFile(options.config, 'utf-8');
+        const configData = await fs.readFile(options.config, "utf-8");
         config = JSON.parse(configData);
       }
 
@@ -183,29 +183,61 @@ program
 
 // Supported file extensions for batch parsing
 const SUPPORTED_EXTENSIONS = new Set([
-  '.pdf',
-  '.doc', '.docx', '.docm', '.dot', '.dotm', '.dotx', '.odt', '.ott',
-  '.ppt', '.pptx', '.pptm', '.pot', '.potm', '.potx', '.odp', '.otp',
-  '.xls', '.xlsx', '.xlsm', '.xlsb', '.ods', '.ots', '.csv', '.tsv',
-  '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg',
-  '.rtf', '.pages', '.key', '.numbers',
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".docm",
+  ".dot",
+  ".dotm",
+  ".dotx",
+  ".odt",
+  ".ott",
+  ".ppt",
+  ".pptx",
+  ".pptm",
+  ".pot",
+  ".potm",
+  ".potx",
+  ".odp",
+  ".otp",
+  ".xls",
+  ".xlsx",
+  ".xlsm",
+  ".xlsb",
+  ".ods",
+  ".ots",
+  ".csv",
+  ".tsv",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".bmp",
+  ".tiff",
+  ".tif",
+  ".webp",
+  ".svg",
+  ".rtf",
+  ".pages",
+  ".key",
+  ".numbers",
 ]);
 
 program
-  .command('batch-parse <input-dir> <output-dir>')
-  .description('Parse multiple documents in batch mode')
-  .option('--format <format>', 'Output format: json|text', 'text')
-  .option('--ocr-server-url <url>', 'HTTP OCR server URL (uses Tesseract if not provided)')
-  .option('--no-ocr', 'Disable OCR')
-  .option('--ocr-language <lang>', 'OCR language(s)', 'en')
-  .option('--max-pages <n>', 'Max pages to parse per file', '1000')
-  .option('--dpi <dpi>', 'DPI for rendering', '150')
-  .option('--no-tables', 'Disable table detection')
-  .option('--no-precise-bbox', 'Disable precise bounding boxes')
-  .option('--recursive', 'Recursively search input directory')
-  .option('--extension <ext>', 'Only process files with this extension (e.g., ".pdf")')
-  .option('--config <file>', 'Config file (JSON)')
-  .option('-q, --quiet', 'Suppress progress output')
+  .command("batch-parse <input-dir> <output-dir>")
+  .description("Parse multiple documents in batch mode")
+  .option("--format <format>", "Output format: json|text", "text")
+  .option("--ocr-server-url <url>", "HTTP OCR server URL (uses Tesseract if not provided)")
+  .option("--no-ocr", "Disable OCR")
+  .option("--ocr-language <lang>", "OCR language(s)", "en")
+  .option("--max-pages <n>", "Max pages to parse per file", "1000")
+  .option("--dpi <dpi>", "DPI for rendering", "150")
+  .option("--no-tables", "Disable table detection")
+  .option("--no-precise-bbox", "Disable precise bounding boxes")
+  .option("--recursive", "Recursively search input directory")
+  .option("--extension <ext>", 'Only process files with this extension (e.g., ".pdf")')
+  .option("--config <file>", "Config file (JSON)")
+  .option("-q, --quiet", "Suppress progress output")
   .action(async (inputDir: string, outputDir: string, options: any) => {
     try {
       const quiet = options.quiet || false;
@@ -232,7 +264,7 @@ program
       const files = findFiles(inputDir, options.recursive, options.extension);
 
       if (files.length === 0) {
-        console.error('No supported files found in input directory');
+        console.error("No supported files found in input directory");
         process.exit(1);
       }
 
@@ -247,7 +279,7 @@ program
           console.error(`Error: Config file not found: ${options.config}`);
           process.exit(1);
         }
-        const configData = await fs.readFile(options.config, 'utf-8');
+        const configData = await fs.readFile(options.config, "utf-8");
         config = JSON.parse(configData);
       }
 
@@ -270,15 +302,12 @@ program
       // Process files
       let successCount = 0;
       let errorCount = 0;
-      const outputExt = options.format === 'json' ? '.json' : '.txt';
+      const outputExt = options.format === "json" ? ".json" : ".txt";
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const relativePath = path.relative(inputDir, file);
-        const outputPath = path.join(
-          outputDir,
-          relativePath.replace(/\.[^.]+$/, outputExt)
-        );
+        const outputPath = path.join(outputDir, relativePath.replace(/\.[^.]+$/, outputExt));
 
         // Create output subdirectory if needed
         const outputSubdir = path.dirname(outputPath);
@@ -292,7 +321,7 @@ program
 
           // Format output
           let output: string;
-          if (options.format === 'json') {
+          if (options.format === "json") {
             output = JSON.stringify(result.json, null, 2);
           } else {
             output = result.text;
@@ -303,7 +332,9 @@ program
 
           if (!quiet) {
             const fileTime = (performance.now() - fileStart).toFixed(0);
-            console.error(`[${i + 1}/${files.length}] ✓ ${relativePath} (${result.pages.length} pages, ${fileTime}ms)`);
+            console.error(
+              `[${i + 1}/${files.length}] ✓ ${relativePath} (${result.pages.length} pages, ${fileTime}ms)`
+            );
           }
         } catch (error: any) {
           errorCount++;
@@ -314,10 +345,11 @@ program
       }
 
       const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
-      const avgTime = files.length > 0 ? ((performance.now() - startTime) / files.length).toFixed(0) : 0;
+      const avgTime =
+        files.length > 0 ? ((performance.now() - startTime) / files.length).toFixed(0) : 0;
 
       if (!quiet) {
-        console.error('');
+        console.error("");
         console.error(`Batch complete: ${successCount} succeeded, ${errorCount} failed`);
         console.error(`Total time: ${totalTime}s (avg ${avgTime}ms/file)`);
         console.error(`Output: ${outputDir}`);
@@ -377,12 +409,12 @@ function findFiles(dir: string, recursive: boolean, filterExt?: string): string[
  */
 function parsePageNumbers(pagesStr: string): number[] {
   const pages: number[] = [];
-  const parts = pagesStr.split(',');
+  const parts = pagesStr.split(",");
 
   for (const part of parts) {
     const trimmed = part.trim();
-    if (trimmed.includes('-')) {
-      const [start, end] = trimmed.split('-').map((n) => parseInt(n.trim()));
+    if (trimmed.includes("-")) {
+      const [start, end] = trimmed.split("-").map((n) => parseInt(n.trim()));
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }

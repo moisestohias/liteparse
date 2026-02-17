@@ -1,4 +1,4 @@
-import { ParseResult, ParsedPage } from '../core/types.js';
+import { ParseResult, ParsedPage } from "../core/types.js";
 
 /**
  * Build JSON output from parsed pages

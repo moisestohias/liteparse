@@ -1,5 +1,5 @@
-import { Path } from '../engines/pdf/interface.js';
-import { LiteParseConfig } from '../core/types.js';
+import { Path } from "../engines/pdf/interface.js";
+import { LiteParseConfig } from "../core/types.js";
 
 export interface Line {
   x: number;
@@ -27,7 +27,7 @@ export function getVerticalAndHorizontalLinesFromPagePaths(
   // and extract line segments from rectangles and line paths
 
   for (const path of paths) {
-    if (path.type === 'line' && path.points.length >= 2) {
+    if (path.type === "line" && path.points.length >= 2) {
       const [start, end] = path.points;
       const [x1, y1] = start;
       const [x2, y2] = end;
@@ -54,7 +54,7 @@ export function getVerticalAndHorizontalLinesFromPagePaths(
       }
     }
     // Handle rectangles as potential table borders
-    else if (path.type === 'rectangle' && path.points.length >= 4) {
+    else if (path.type === "rectangle" && path.points.length >= 4) {
       const xs = path.points.map((p) => p[0]);
       const ys = path.points.map((p) => p[1]);
       const minX = Math.min(...xs);

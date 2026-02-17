@@ -1,19 +1,11 @@
-import { TextItem } from '../../core/types.js';
+import { TextItem } from "../../core/types.js";
 
 export interface PdfEngine {
   name: string;
   loadDocument(filePath: string): Promise<PdfDocument>;
   extractPage(doc: PdfDocument, pageNum: number): Promise<PageData>;
-  extractAllPages(
-    doc: PdfDocument,
-    maxPages?: number,
-    targetPages?: string
-  ): Promise<PageData[]>;
-  renderPageImage(
-    doc: PdfDocument,
-    pageNum: number,
-    dpi: number
-  ): Promise<Buffer>;
+  extractAllPages(doc: PdfDocument, maxPages?: number, targetPages?: string): Promise<PageData[]>;
+  renderPageImage(doc: PdfDocument, pageNum: number, dpi: number): Promise<Buffer>;
   close(doc: PdfDocument): Promise<void>;
 }
 
@@ -34,7 +26,7 @@ export interface PageData {
 }
 
 export interface Path {
-  type: 'rectangle' | 'line' | 'curve';
+  type: "rectangle" | "line" | "curve";
   points: number[][];
   color?: string;
   width?: number;
@@ -65,7 +57,7 @@ export interface Image {
 export type EasyOcrResultLine = [
   [[number, number], [number, number], [number, number], [number, number]],
   string,
-  string | number
+  string | number,
 ];
 
 export interface Annotation {

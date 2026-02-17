@@ -1,4 +1,4 @@
-export { LiteParse } from './core/parser.js';
+export { LiteParse } from "./core/parser.js";
 export type {
   LiteParseConfig,
   OutputFormat,
@@ -8,4 +8,4 @@ export type {
   TextItem,
   // ImageItem,
   // TableItem
-} from './core/types.js';
+} from "./core/types.js";

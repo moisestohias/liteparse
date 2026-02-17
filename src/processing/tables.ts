@@ -1,5 +1,5 @@
-import { Path } from '../engines/pdf/interface.js';
-import { TextItem } from '../core/types.js';
+import { Path } from "../engines/pdf/interface.js";
+import { TextItem } from "../core/types.js";
 
 export interface DetectedTable {
   x1: number;
@@ -43,7 +43,7 @@ function extractLines(paths: Path[]): { horizontal: Line[]; vertical: Line[] } {
   const tolerance = 2; // Tolerance for determining if a line is horizontal/vertical
 
   for (const path of paths) {
-    if (path.type === 'line' && path.points.length >= 2) {
+    if (path.type === "line" && path.points.length >= 2) {
       const [start, end] = path.points;
       const [x1, y1] = start;
       const [x2, y2] = end;
@@ -73,7 +73,7 @@ function extractLines(paths: Path[]): { horizontal: Line[]; vertical: Line[] } {
       }
     }
     // Extract lines from rectangles
-    else if (path.type === 'rectangle' && path.points.length >= 4) {
+    else if (path.type === "rectangle" && path.points.length >= 4) {
       const xs = path.points.map((p) => p[0]);
       const ys = path.points.map((p) => p[1]);
       const minX = Math.min(...xs);
@@ -151,9 +151,7 @@ function clusterLines(lines: Line[], isHorizontal: boolean): Line[] {
     const threshold = 5;
 
     // Check if lines are close enough to merge
-    const distance = isHorizontal
-      ? Math.abs(line.y1 - current.y1)
-      : Math.abs(line.x1 - current.x1);
+    const distance = isHorizontal ? Math.abs(line.y1 - current.y1) : Math.abs(line.x1 - current.x1);
 
     if (distance < threshold) {
       // Merge lines
@@ -181,9 +179,7 @@ function clusterLines(lines: Line[], isHorizontal: boolean): Line[] {
 /**
  * Create cells from intersections
  */
-function createCellsFromIntersections(
-  intersections: Intersection[]
-): TableCell[] {
+function createCellsFromIntersections(intersections: Intersection[]): TableCell[] {
   if (intersections.length < 4) return [];
 
   // Sort intersections
@@ -193,12 +189,8 @@ function createCellsFromIntersections(
   });
 
   // Find unique x and y coordinates
-  const xCoords = [...new Set(sorted.map((i) => Math.round(i.x)))].sort(
-    (a, b) => a - b
-  );
-  const yCoords = [...new Set(sorted.map((i) => Math.round(i.y)))].sort(
-    (a, b) => a - b
-  );
+  const xCoords = [...new Set(sorted.map((i) => Math.round(i.x)))].sort((a, b) => a - b);
+  const yCoords = [...new Set(sorted.map((i) => Math.round(i.y)))].sort((a, b) => a - b);
 
   const cells: TableCell[] = [];
 
@@ -210,7 +202,7 @@ function createCellsFromIntersections(
         y1: yCoords[row],
         x2: xCoords[col + 1],
         y2: yCoords[row + 1],
-        text: '',
+        text: "",
         row,
         col,
       });
@@ -242,7 +234,7 @@ function assignTextToCells(cells: TableCell[], textItems: TextItem[]): void {
       }
     }
 
-    cell.text = cellText.join(' ').trim();
+    cell.text = cellText.join(" ").trim();
   }
 }
 
@@ -267,10 +259,7 @@ function isValidTable(
  * Detect tables using heuristic methods (outlined paths)
  * Uses line intersection detection to find table grid structures
  */
-export function detectTables(
-  paths: Path[],
-  textItems: TextItem[] = []
-): DetectedTable[] {
+export function detectTables(paths: Path[], textItems: TextItem[] = []): DetectedTable[] {
   const tables: DetectedTable[] = [];
 
   // Extract lines from paths
@@ -324,10 +313,7 @@ export function detectTables(
 /**
  * Extract table structure from detected table region
  */
-export function extractTableStructure(
-  table: DetectedTable,
-  _paths: Path[]
-): any {
+export function extractTableStructure(table: DetectedTable, _paths: Path[]): any {
   return {
     rows: table.rows,
     cols: table.cols,

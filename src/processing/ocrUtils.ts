@@ -1,4 +1,4 @@
-import { Image, EasyOcrResultLine } from '../engines/pdf/interface.js';
+import { Image, EasyOcrResultLine } from "../engines/pdf/interface.js";
 
 export interface OcrBlock {
   c: string; // Content/text
@@ -60,14 +60,12 @@ export function parseImageOcrBlocks(image: Image): OcrBlock[] {
 /**
  * Parse EasyOCR stdout result into structured format
  */
-export function easyOcrResultLinesToList(
-  stdOutResult?: string
-): EasyOcrResultLine[] {
+export function easyOcrResultLinesToList(stdOutResult?: string): EasyOcrResultLine[] {
   if (!stdOutResult?.length) {
     return [];
   }
 
-  const lines = stdOutResult.split('\n');
+  const lines = stdOutResult.split("\n");
   const blocks: EasyOcrResultLine[] = [];
 
   for (const line of lines) {

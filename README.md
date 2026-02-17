@@ -87,9 +87,14 @@ liteparse parse document.pdf --target-pages "1-5,10,15-20"
 
 # Parse without OCR
 liteparse parse document.pdf --no-ocr
+```
 
-# Use custom config file
-liteparse parse document.pdf --config config.json
+### Batch Parsing
+
+You can also parse an entire directory of documents:
+
+```bash
+liteparse batch-parse ./input-directory ./output-directory
 ```
 
 ### Generate Screenshots
@@ -133,7 +138,7 @@ console.log(result.text);
 #### Parse Command
 
 ```
-liteparse parse <file> [options]
+$ liteparse parse <file> [options]
 
 Options:
   -o, --output <file>              Output file path
@@ -152,10 +157,33 @@ Options:
   --config <file>                  Config file (JSON)
 ```
 
+#### Batch Parse Command
+
+```
+$ liteparse batch-parse --help
+
+Parse multiple documents in batch mode (reuses PDF engine for efficiency)
+
+Options:
+  --format <format>       Output format: json|text (default: "text")
+  --ocr-server-url <url>  HTTP OCR server URL (uses Tesseract if not provided)
+  --no-ocr                Disable OCR
+  --ocr-language <lang>   OCR language(s) (default: "en")
+  --max-pages <n>         Max pages to parse per file (default: "1000")
+  --dpi <dpi>             DPI for rendering (default: "150")
+  --no-tables             Disable table detection
+  --no-precise-bbox       Disable precise bounding boxes
+  --recursive             Recursively search input directory
+  --extension <ext>       Only process files with this extension (e.g., ".pdf")
+  --config <file>         Config file (JSON)
+  -q, --quiet             Suppress progress output
+  -h, --help              display help for command
+```
+
 #### Screenshot Command
 
 ```
-liteparse screenshot <file> [options]
+$ liteparse screenshot <file> [options]
 
 Options:
   -o, --output-dir <dir>           Output directory for screenshots (default: "./screenshots")

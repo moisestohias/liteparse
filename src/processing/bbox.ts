@@ -4,9 +4,9 @@ import {
   ProjectionTextBox,
   OcrData,
   LiteParseConfig,
-} from '../core/types.js';
-import { PageData, Image } from '../engines/pdf/interface.js';
-import { parseImageOcrBlocks, OcrBlock } from './ocrUtils.js';
+} from "../core/types.js";
+import { PageData, Image } from "../engines/pdf/interface.js";
+import { parseImageOcrBlocks, OcrBlock } from "./ocrUtils.js";
 
 const OCR_CONFIDENCE_THRESHOLD = 0.1;
 
@@ -46,8 +46,7 @@ export function filterImagesForOCR(
 ): Image[] {
   // Filter images that start with g_ or pattern_ (generated/pattern images)
   let filtered = images.filter(
-    (image) =>
-      !image.type?.startsWith('g_') && !image.type?.startsWith('pattern_')
+    (image) => !image.type?.startsWith("g_") && !image.type?.startsWith("pattern_")
   );
 
   // Limit to max images per page, keeping the largest ones
@@ -59,7 +58,7 @@ export function filterImagesForOCR(
   // Apply additional filtering criteria
   filtered = filtered.filter((image) => {
     // Ignore layout extracted images
-    if (image.type?.includes('layout_')) {
+    if (image.type?.includes("layout_")) {
       return false;
     }
 
@@ -173,10 +172,7 @@ function filterOcrBlocksOverlappingWithText(
         totalOverlapArea += overlapArea;
 
         // Condition 2: Reject if OCR block covers more than 50% of any single text item
-        if (
-          textItemArea > 0 &&
-          overlapArea / textItemArea >= OCR_OVERLAP_THRESHOLD
-        ) {
+        if (textItemArea > 0 && overlapArea / textItemArea >= OCR_OVERLAP_THRESHOLD) {
           return false;
         }
       }
@@ -196,10 +192,7 @@ function filterOcrBlocksOverlappingWithText(
  * Build projection text boxes from page data, including OCR results
  * This is the complete implementation from buildBbox.ts
  */
-export function buildBbox(
-  pageData: PageData,
-  config: LiteParseConfig
-): ProjectionTextBox[] {
+export function buildBbox(pageData: PageData, config: LiteParseConfig): ProjectionTextBox[] {
   const lines: ProjectionTextBox[] = [];
 
   // Process all extracted text items
@@ -244,7 +237,6 @@ export function buildBbox(
     }));
 
     for (const image of imagesToProcess) {
-
       // Parse OCR blocks from image
       let ocrData = parseImageOcrBlocks(image);
 
@@ -258,8 +250,7 @@ export function buildBbox(
 
       const ocrParsed: OcrData[] = [];
       for (const block of ocrData) {
-        const confidenceRounded =
-          Math.round(parseFloat(block.confidence.toString()) * 1000) / 1000;
+        const confidenceRounded = Math.round(parseFloat(block.confidence.toString()) * 1000) / 1000;
 
         const line: ProjectionTextBox = {
           fromOCR: true,
@@ -305,7 +296,7 @@ export function buildBoundingBoxes(textItems: TextItem[]): BoundingBox[] {
   const bboxes: BoundingBox[] = [];
 
   for (const item of textItems) {
-    if (item.str.trim() === '') {
+    if (item.str.trim() === "") {
       continue;
     }
 
