@@ -70,7 +70,10 @@ program
   .option("--ocr-server-url <url>", "HTTP OCR server URL (uses Tesseract if not provided)")
   .option("--no-ocr", "Disable OCR")
   .option("--ocr-language <lang>", "OCR language(s)", DEFAULT_LANGUAGE)
-  .option("--num-workers <n>", "Number of pages to OCR in parallel. Defaults to number of CPU cores minus one.")
+  .option(
+    "--num-workers <n>",
+    "Number of pages to OCR in parallel. Defaults to number of CPU cores minus one."
+  )
   .option("--max-pages <n>", "Max pages to parse", DEFAULT_MAX_PAGES.toString())
   .option("--target-pages <pages>", 'Target pages (e.g., "1-5,10,15-20")')
   .option("--dpi <dpi>", "DPI for rendering", DEFAULT_DPI.toString())
@@ -290,7 +293,10 @@ program
   .option("--ocr-server-url <url>", "HTTP OCR server URL (uses Tesseract if not provided)")
   .option("--no-ocr", "Disable OCR")
   .option("--ocr-language <lang>", "OCR language(s)", DEFAULT_LANGUAGE)
-  .option("--num-workers <n>", "Number of pages to OCR in parallel. Defaults to number of CPU cores minus one.")
+  .option(
+    "--num-workers <n>",
+    "Number of pages to OCR in parallel. Defaults to number of CPU cores minus one."
+  )
   .option("--max-pages <n>", "Max pages to parse per file", DEFAULT_MAX_PAGES.toString())
   .option("--dpi <dpi>", "DPI for rendering", DEFAULT_DPI.toString())
   .option("--no-precise-bbox", "Disable precise bounding boxes")

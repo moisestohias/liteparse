@@ -200,9 +200,7 @@ export class LiteParse {
 
     const limit = pLimit(this.config.numWorkers);
 
-    await Promise.all(
-      pages.map((page) => limit(() => this.processPageOcr(doc, page, log)))
-    );
+    await Promise.all(pages.map((page) => limit(() => this.processPageOcr(doc, page, log))));
   }
 
   /**
@@ -231,11 +229,7 @@ export class LiteParse {
 
     try {
       // Render page as image
-      const imageBuffer = await this.pdfEngine.renderPageImage(
-        doc,
-        page.pageNum,
-        this.config.dpi
-      );
+      const imageBuffer = await this.pdfEngine.renderPageImage(doc, page.pageNum, this.config.dpi);
 
       // Save temporary image file
       const fs = await import("fs/promises");

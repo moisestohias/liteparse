@@ -86,9 +86,7 @@ export class TesseractEngine implements OcrEngine {
     }
 
     // Process all images in parallel - scheduler handles distribution
-    const jobs = imagePaths.map((imagePath) =>
-      this.recognize(imagePath, options)
-    );
+    const jobs = imagePaths.map((imagePath) => this.recognize(imagePath, options));
 
     return Promise.all(jobs);
   }
