@@ -19,7 +19,7 @@ lit parse [options] <file>
 
 | Argument | Description |
 |----------|-------------|
-| `file` | Path to the document file |
+| `file` | Path to the document file, or `-` to read from stdin |
 
 ### Options
 
@@ -60,6 +60,9 @@ lit parse report.pdf --ocr-server-url http://localhost:8828/ocr
 
 # Pipe output to another tool
 lit parse report.pdf -q | wc -l
+
+# Parse a remote file via stdin
+curl -sL https://example.com/report.pdf | lit parse --no-ocr -
 ```
 
 ---

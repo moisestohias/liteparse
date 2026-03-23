@@ -87,9 +87,10 @@ program
   .action(async (file: string, options: ParseCommandOptions) => {
     try {
       const quiet = options.quiet || false;
+      const isStdin = file === "-";
 
-      // Check if file exists
-      if (!existsSync(file)) {
+      // Check if file exists (skip for stdin)
+      if (!isStdin && !existsSync(file)) {
         console.error(`Error: File not found: ${file}`);
         process.exit(1);
       }
@@ -130,8 +131,24 @@ program
       // Create parser
       const parser = new LiteParse(config);
 
-      // Parse PDF (quiet flag controls progress output)
-      const result = await parser.parse(file, quiet);
+      // Read from stdin or file
+      let input: string | Buffer;
+      if (isStdin) {
+        const chunks: Buffer[] = [];
+        for await (const chunk of process.stdin) {
+          chunks.push(chunk);
+        }
+        input = Buffer.concat(chunks);
+        if (input.length === 0) {
+          console.error("Error: No data received from stdin");
+          process.exit(1);
+        }
+      } else {
+        input = file;
+      }
+
+      // Parse document (quiet flag controls progress output)
+      const result = await parser.parse(input, quiet);
 
       // Format output based on format
       let output: string;
