@@ -142,6 +142,32 @@ If any character lacks a Unicode equivalent, returns original string unchanged.
 
 ---
 
+### tsvParser.ts
+**TSV parser with table header and colspan support.**
+
+Parses tab-separated values with special markers for table structure.
+
+**Key Functions:**
+
+`parseTsv(tsv)` - Parse TSV string into structured table:
+- Recognizes `[thead]` markers for header rows
+- Auto-extends last non-empty cell to span remaining columns when header row has fewer cells
+- Returns `TsvTable` with rows, cells, and column count
+
+`toTsv(table)` - Convert structured table back to TSV format:
+- Restores `[thead]` markers for header rows
+- Expands colspan cells to trailing empty cells
+
+**Example:**
+```
+[thead]\tYear ended Dec. 31,\t
+[thead](in millions)\t2024\t2023\t2022
+```
+
+The first header row has 3 cells but the table has 4 columns. "Year ended Dec. 31," (the last non-empty cell) gets colspan=3, spanning columns 2-4.
+
+---
+
 ### cleanText.ts
 **Post-processing text cleanup.**
 
