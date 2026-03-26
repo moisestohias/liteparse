@@ -9,6 +9,7 @@ import {
 import { mergeConfig } from "./config.js";
 import { PdfEngine, PdfDocument, PageData } from "../engines/pdf/interface.js";
 import { PdfJsEngine } from "../engines/pdf/pdfjs.js";
+import { LiteParseRsEngine } from "../engines/pdf/liteparse-rs.js";
 import { PdfiumRenderer } from "../engines/pdf/pdfium-renderer.js";
 import { OcrEngine } from "../engines/ocr/interface.js";
 import { TesseractEngine } from "../engines/ocr/tesseract.js";
@@ -70,7 +71,9 @@ export class LiteParse {
     this.config = mergeConfig(userConfig);
 
     // Initialize PDF engine
-    this.pdfEngine = new PdfJsEngine();
+    this.pdfEngine = this.config.experimental
+      ? new LiteParseRsEngine()
+      : new PdfJsEngine();
 
     // Initialize OCR engine
     // Auto-detect: use HTTP OCR if URL provided, otherwise use Tesseract

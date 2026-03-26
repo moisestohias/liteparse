@@ -15,6 +15,8 @@ struct TextItem {
 #[derive(Debug, Serialize)]
 struct Page {
     page_number: usize,
+    page_width: f32,
+    page_height: f32,
     text_items: Vec<TextItem>,
 }
 
@@ -36,6 +38,15 @@ pub fn extract(pdf_path: &str, page_num: Option<u32>) -> Result<(), Box<dyn std:
         }
 
         let mut text_items = Vec::new();
+        let mut cur_item = TextItem {
+            text: String::new(),
+            x: 0.0,
+            y: 0.0,
+            width: 0.0,
+            height: 0.0,
+            font_name: None,
+            font_size: None,
+        };
 
         for object in page.objects().iter() {
             if let Some(object) = object.as_text_object() {
@@ -53,6 +64,8 @@ pub fn extract(pdf_path: &str, page_num: Option<u32>) -> Result<(), Box<dyn std:
 
         let page_data = Page {
             page_number: page_index + 1,
+            page_width: page.width().value,
+            page_height: page.height().value,
             text_items,
         };
 

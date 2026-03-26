@@ -136,6 +136,15 @@ export interface LiteParseConfig {
    * @defaultValue `undefined`
    */
   password?: string;
+
+  /**
+   * Use the experimental Rust-based PDF engine (`liteparse-rs`) instead of PDF.js.
+   * Requires the `liteparse-rs` binary to be built. Set the `LITEPARSE_RS_BIN`
+   * environment variable to override the default binary path.
+   *
+   * @defaultValue `false`
+   */
+  experimental?: boolean;
 }
 
 /**

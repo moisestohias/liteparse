@@ -27,6 +27,7 @@ interface ParseCommandOptions {
   preciseBbox?: boolean;
   preserveSmallText?: boolean;
   password?: string;
+  experimental?: boolean;
   config?: string;
   quiet?: boolean;
 }
@@ -82,6 +83,7 @@ program
   .option("--no-precise-bbox", "Disable precise bounding boxes")
   .option("--preserve-small-text", "Preserve very small text")
   .option("--password <password>", "Password for encrypted/protected documents")
+  .option("--experimental", "Use experimental Rust-based PDF engine")
   .option("--config <file>", "Config file (JSON)")
   .option("-q, --quiet", "Suppress progress output")
   .action(async (file: string, options: ParseCommandOptions) => {
@@ -126,6 +128,7 @@ program
         preciseBoundingBox: options.preciseBbox !== false,
         preserveVerySmallText: options.preserveSmallText || false,
         password: options.password,
+        experimental: options.experimental || false,
       };
 
       // Create parser
