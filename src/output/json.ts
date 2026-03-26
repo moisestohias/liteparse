@@ -19,6 +19,15 @@ export function buildJSON(pages: ParsedPage[]): ParseResultJson {
         fontName: item.fontName,
         fontSize: item.fontSize,
       })),
+      images: page.images?.map((img) => ({
+        id: img.id,
+        x: img.x,
+        y: img.y,
+        width: img.width,
+        height: img.height,
+        type: img.type,
+        path: img.path,
+      })),
       boundingBoxes: page.boundingBoxes || [],
     })),
   };

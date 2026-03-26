@@ -16,7 +16,29 @@ interface PdfJsDocument {
 interface PdfJsPage {
   getViewport(params: { scale: number }): PdfJsViewport;
   getTextContent(): Promise<PdfJsTextContent>;
+  getOperatorList(): Promise<PdfJsOperatorList>;
+  objs: PdfJsObjs;
+  commonObjs: PdfJsObjs;
   cleanup(): Promise<void>;
+}
+
+/** PDF.js operator list type */
+interface PdfJsOperatorList {
+  fnArray: Uint8Array;
+  argsArray: ArrayLike<unknown>[];
+}
+
+/** PDF.js objects cache type */
+interface PdfJsObjs {
+  get(id: string): PdfJsImage | undefined;
+}
+
+/** PDF.js image type */
+interface PdfJsImage {
+  width: number;
+  height: number;
+  kind: number;
+  data?: Uint8ClampedArray;
 }
 
 /** PDF.js viewport type */
@@ -599,6 +621,110 @@ export class PdfJsEngine implements PdfEngine {
     }
 
     const images: Image[] = [];
+
+    try {
+      const operatorList = await page.getOperatorList();
+
+      const seenImages = new Set<string>();
+
+      for (let i = 0; i < operatorList.fnArray.length; i++) {
+        const op = operatorList.fnArray[i];
+        const args = operatorList.argsArray[i];
+
+        // Check for paintImageXObject (85) or paintInlineImageXObject (86)
+        if (op === 85 || op === 86) {
+          if (!Array.isArray(args) || args.length === 0) continue;
+
+          const imgId = args[0] as string;
+          if (seenImages.has(imgId)) continue;
+
+          // Try to get image from page.objs first, then commonObjs
+          let imgData: PdfJsImage | undefined = page.objs.get(imgId);
+          if (!imgData) {
+            imgData = (page as any).commonObjs?.get(imgId);
+          }
+
+          if (!imgData) continue;
+
+          seenImages.add(imgId);
+
+          // Get image position from the args (args[1] might contain transform info)
+          let x = 0,
+            y = 0,
+            width = imgData.width,
+            height = imgData.height;
+
+          // Try to extract position from transform matrix if available
+          if (Array.isArray(args[1]) && args[1].length >= 6) {
+            const transform = args[1] as number[];
+            // Transform: [scaleX, skewX, skewY, scaleY, translateX, translateY]
+            x = transform[4] || 0;
+            y = transform[5] || 0;
+            // Calculate actual width/height from transform
+            const scaleX = Math.sqrt(transform[0] * transform[0] + transform[1] * transform[1]);
+            const scaleY = Math.sqrt(transform[2] * transform[2] + transform[3] * transform[3]);
+            width = imgData.width * scaleX;
+            height = imgData.height * scaleY;
+          }
+
+          // Convert image data to Buffer
+          let buffer: Buffer | undefined;
+          if (imgData.data && imgData.data instanceof Uint8ClampedArray) {
+            // ImageKind: GRAYSCALE_1BPP=1, RGB_24BPP=2, RGBA_32BPP=3
+            if (imgData.kind === 3 && imgData.data.length === imgData.width * imgData.height * 4) {
+              // RGBA - convert to PNG using sharp
+              try {
+                const sharp = (await import("sharp")).default;
+                buffer = await sharp(Buffer.from(imgData.data), {
+                  raw: {
+                    width: imgData.width,
+                    height: imgData.height,
+                    channels: 4,
+                  },
+                })
+                  .png()
+                  .toBuffer();
+              } catch {
+                // Fall back to raw RGBA data
+                buffer = Buffer.from(imgData.data);
+              }
+            } else if (
+              imgData.kind === 2 &&
+              imgData.data.length === imgData.width * imgData.height * 3
+            ) {
+              // RGB - convert to PNG
+              try {
+                const sharp = (await import("sharp")).default;
+                buffer = await sharp(Buffer.from(imgData.data), {
+                  raw: {
+                    width: imgData.width,
+                    height: imgData.height,
+                    channels: 3,
+                  },
+                })
+                  .png()
+                  .toBuffer();
+              } catch {
+                buffer = Buffer.from(imgData.data);
+              }
+            } else {
+              buffer = Buffer.from(imgData.data);
+            }
+          }
+
+          images.push({
+            x,
+            y,
+            width,
+            height,
+            data: buffer,
+            type: "png",
+          });
+        }
+      }
+    } catch {
+      // Image extraction is optional - continue without images if it fails
+    }
 
     // Skip annotation extraction - not currently used in processing pipeline
     // Can be re-enabled if needed for link extraction, etc.

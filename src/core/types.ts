@@ -130,6 +130,14 @@ export interface LiteParseConfig {
   preserveLayoutAlignmentAcrossPages: boolean;
 
   /**
+   * Whether to extract and preserve images from the PDF.
+   * Images are saved to the output directory and referenced in text output.
+   *
+   * @defaultValue `false`
+   */
+  preserveImages: boolean;
+
+  /**
    * Password for opening encrypted/protected documents.
    * Used for password-protected PDFs and office documents.
    *
@@ -189,6 +197,28 @@ export interface MarkupData {
   squiggly?: boolean;
   /** Whether the text is struck out. */
   strikeout?: boolean;
+}
+
+/**
+ * An image extracted from a PDF page.
+ */
+export interface ParsedImage {
+  /** Unique identifier for the image. */
+  id: string;
+  /** X coordinate of the top-left corner, in PDF points. */
+  x: number;
+  /** Y coordinate of the top-left corner, in PDF points. */
+  y: number;
+  /** Width of the image in PDF points. */
+  width: number;
+  /** Height of the image in PDF points. */
+  height: number;
+  /** Image data as a Buffer. */
+  data: Buffer;
+  /** Image format (e.g., "png", "jpeg"). */
+  type: string;
+  /** Relative path to the saved image file (when saved to disk). */
+  path?: string;
 }
 
 export interface ProjectionTextBox {
@@ -279,6 +309,8 @@ export interface ParsedPage {
   text: string;
   /** Individual text elements extracted from the page. */
   textItems: TextItem[];
+  /** Images extracted from the page. */
+  images?: ParsedImage[];
   /**
    * @deprecated Use {@link TextItem} coordinates instead. Will be removed in v2.0.
    * Present when {@link LiteParseConfig.preciseBoundingBox} is enabled.
@@ -337,6 +369,16 @@ export interface ParseResultJson {
     text: string;
     /** Individual text elements with position and font metadata. */
     textItems: JsonTextItem[];
+    /** Images extracted from the page. */
+    images?: Array<{
+      id: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      type: string;
+      path?: string;
+    }>;
     /**
      * @deprecated Use `textItems` coordinates instead. Will be removed in v2.0.
      */

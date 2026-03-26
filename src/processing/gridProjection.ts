@@ -1,7 +1,13 @@
 import { strToSubscriptString, strToPostScript } from "./textUtils.js";
 import { buildBbox } from "./bbox.js";
 import { cleanRawText } from "./cleanText.js";
-import { ProjectionTextBox, Coordinates, LiteParseConfig, ParsedPage } from "../core/types.js";
+import {
+  ProjectionTextBox,
+  Coordinates,
+  LiteParseConfig,
+  ParsedPage,
+  ParsedImage,
+} from "../core/types.js";
 import { PageData } from "../engines/pdf/interface.js";
 
 import { applyMarkupTags } from "./markupUtils.js";
@@ -1690,12 +1696,24 @@ export function projectPagesToGrid(pages: PageData[], config: LiteParseConfig): 
     }
 
     // Build result page
+    const parsedImages: ParsedImage[] =
+      page.images?.map((img, idx) => ({
+        id: `img_${page.pageNum}_${idx}`,
+        x: img.x,
+        y: img.y,
+        width: img.width,
+        height: img.height,
+        data: img.data || Buffer.alloc(0),
+        type: img.type || "png",
+      })) || [];
+
     results.push({
       pageNum: page.pageNum,
       width: page.width,
       height: page.height,
       text,
       textItems: page.textItems,
+      images: parsedImages,
       boundingBoxes: [],
     });
   }

@@ -180,7 +180,12 @@ export class LiteParse {
     }
 
     // Build final text
-    const fullText = processedPages.map((p) => p.text).join("\n\n");
+    const fullText = processedPages
+      .map((p) => {
+        const header = `\n--- Page ${p.pageNum} ---\n`;
+        return header + p.text;
+      })
+      .join("\n\n");
 
     // Close PDF document
     await this.pdfEngine.close(doc);

@@ -26,6 +26,7 @@ interface ParseCommandOptions {
   dpi?: string;
   preciseBbox?: boolean;
   preserveSmallText?: boolean;
+  preserveImages?: boolean;
   password?: string;
   config?: string;
   quiet?: boolean;
@@ -81,6 +82,7 @@ program
   .option("--dpi <dpi>", "DPI for rendering", DEFAULT_DPI.toString())
   .option("--no-precise-bbox", "Disable precise bounding boxes")
   .option("--preserve-small-text", "Preserve very small text")
+  .option("--preserve-images", "Extract and save images from PDF")
   .option("--password <password>", "Password for encrypted/protected documents")
   .option("--config <file>", "Config file (JSON)")
   .option("-q, --quiet", "Suppress progress output")
@@ -125,6 +127,7 @@ program
         dpi: parseInt(options.dpi || DEFAULT_DPI.toString()),
         preciseBoundingBox: options.preciseBbox !== false,
         preserveVerySmallText: options.preserveSmallText || false,
+        preserveImages: options.preserveImages || false,
         password: options.password,
       };
 
@@ -150,6 +153,46 @@ program
       // Parse document (quiet flag controls progress output)
       const result = await parser.parse(input, quiet);
 
+      // Save images if preserveImages is enabled
+      let outputText = result.text;
+      if (config.preserveImages) {
+        const imagesBaseDir = options.output ? path.dirname(options.output) : process.cwd();
+        const imagesDir = path.join(imagesBaseDir, "images");
+
+        // Create images directory
+        if (!existsSync(imagesDir)) {
+          await fs.mkdir(imagesDir, { recursive: true });
+        }
+
+        // Save images and update text with image references
+        for (const page of result.pages) {
+          if (page.images && page.images.length > 0) {
+            // Find position to insert image reference (after page header)
+            const pageHeaderPattern = new RegExp(`^--- Page ${page.pageNum} ---$`, "m");
+            const match = outputText.match(pageHeaderPattern);
+
+            for (const image of page.images) {
+              const filename = `page${page.pageNum}_${image.id}.${image.type}`;
+              const filepath = path.join(imagesDir, filename);
+
+              // Save image buffer to file
+              await fs.writeFile(filepath, image.data);
+
+              // Update image path reference
+              image.path = `images/${filename}`;
+
+              // Insert image reference after page header
+              if (match) {
+                const insertPos = match.index! + match[0].length;
+                const imageRef = `\n![](images/${filename})`;
+                outputText =
+                  outputText.slice(0, insertPos) + imageRef + outputText.slice(insertPos);
+              }
+            }
+          }
+        }
+      }
+
       // Format output based on format
       let output: string;
       switch (config.outputFormat) {
@@ -158,7 +201,7 @@ program
           break;
         case "text":
         default:
-          output = result.text;
+          output = outputText;
           break;
       }
 
