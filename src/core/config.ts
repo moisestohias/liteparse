@@ -21,6 +21,7 @@ export const DEFAULT_CONFIG: LiteParseConfig = {
   preserveVerySmallText: false,
   preserveLayoutAlignmentAcrossPages: false,
   preserveImages: false,
+  discardHeadersFooters: false,
   password: undefined,
 };
 

@@ -27,6 +27,7 @@ interface ParseCommandOptions {
   preciseBbox?: boolean;
   preserveSmallText?: boolean;
   preserveImages?: boolean;
+  discardHeadersFooters?: boolean;
   password?: string;
   config?: string;
   quiet?: boolean;
@@ -83,6 +84,7 @@ program
   .option("--no-precise-bbox", "Disable precise bounding boxes")
   .option("--preserve-small-text", "Preserve very small text")
   .option("--preserve-images", "Extract and save images from PDF")
+  .option("--discard-headers-footers", "Discard header and footer text")
   .option("--password <password>", "Password for encrypted/protected documents")
   .option("--config <file>", "Config file (JSON)")
   .option("-q, --quiet", "Suppress progress output")
@@ -128,6 +130,7 @@ program
         preciseBoundingBox: options.preciseBbox !== false,
         preserveVerySmallText: options.preserveSmallText || false,
         preserveImages: options.preserveImages || false,
+        discardHeadersFooters: options.discardHeadersFooters || false,
         password: options.password,
       };
 

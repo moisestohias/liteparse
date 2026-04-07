@@ -1670,13 +1670,26 @@ export function projectPagesToGrid(pages: PageData[], config: LiteParseConfig): 
   const results: ParsedPage[] = [];
 
   for (const page of pages) {
+    // Filter headers/footers BEFORE text generation if enabled
+    let pageForProjection = page;
+    if (config.discardHeadersFooters) {
+      const marginThreshold = 50;
+      const filteredItems = page.textItems.filter((item) => {
+        const y = item.y;
+        const inHeaderZone = y < marginThreshold;
+        const inFooterZone = y > page.height - marginThreshold;
+        return !inHeaderZone && !inFooterZone;
+      });
+      pageForProjection = { ...page, textItems: filteredItems };
+    }
+
     // Build projection boxes from text items
-    const projectionBoxes = buildBbox(page, config);
+    const projectionBoxes = buildBbox(pageForProjection, config);
 
     // Project to grid
     const { text, prevAnchors: newAnchors } = projectToGrid(
       config,
-      page,
+      pageForProjection,
       projectionBoxes,
       prevAnchors,
       pages.length
@@ -1712,7 +1725,7 @@ export function projectPagesToGrid(pages: PageData[], config: LiteParseConfig): 
       width: page.width,
       height: page.height,
       text,
-      textItems: page.textItems,
+      textItems: pageForProjection.textItems,
       images: parsedImages,
       boundingBoxes: [],
     });

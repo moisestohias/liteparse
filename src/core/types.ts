@@ -138,6 +138,14 @@ export interface LiteParseConfig {
   preserveImages: boolean;
 
   /**
+   * Discard header and footer text (page numbers, running heads).
+   * Filters text within top/bottom margin zones.
+   *
+   * @defaultValue `false`
+   */
+  discardHeadersFooters: boolean;
+
+  /**
    * Password for opening encrypted/protected documents.
    * Used for password-protected PDFs and office documents.
    *
